@@ -26,10 +26,16 @@ function rehash(){
         table = [];
         size=0;
         temp.forEach(node=>{
-                while(node!=null){
-                    insertion(node.key,node.value);
-                    node=node.next;
-                }
+            const keys = node.keys;
+            const values = node.values;
+            for(let i=0;i<keys.length;i++){
+                insertion(keys[i],values[i]);
+            }
+
+                // while(node!=null){
+                //     insertion(node.key,node.value);
+                //     node=node.next;
+                // }
         });
     }
 }

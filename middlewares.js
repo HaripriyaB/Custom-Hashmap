@@ -3,11 +3,12 @@ const RbTree = require("functional-red-black-tree");
 const createRBTree = require("functional-red-black-tree");
 
 var table = [];
+var cache = [];
 var mapcapacity = 16;
 var size=0;
 
 function showTable(){
-    return table;
+    return cache;
 }
 
 function hash(key){
@@ -37,6 +38,7 @@ function rehash(){
                 //     node=node.next;
                 // }
         });
+        cache = table;
     }
 }
 
@@ -45,21 +47,24 @@ async function insertion(key,value){
     let index = hash(key);
     // var newnode = new Entry(key,value,null);
     
-    if(table[index] == null){
+    if(cache[index] == null){
         var rbTree = createRBTree();
+        cache[index] = rbTree.insert(key,value);
         table[index] = rbTree.insert(key,value);
         size++;
     } else {
-        let currentTree = table[index];
+        let currentTree = cache[index];
         if(currentTree.get(key) == null){
             currentTree = currentTree.insert(key,value);
             size++;
         } else{
             currentTree = currentTree.remove(key);
             currentTree = currentTree.insert(key,value);
+            cache[index] = currentTree;
             table[index] = currentTree;
             return `${key} was already present, Value updated!`;
         }
+        cache[index] = currentTree;
         table[index] = currentTree;
     }
     // if(table[index] == null){
@@ -81,13 +86,13 @@ async function insertion(key,value){
     //         previousNode.next = newnode;
     //     }
     // }
-    // console.log(`${index}  ${size}`);
+    console.log(`${index}  ${size}`);
     return `${key} - ${value} inserted successfully`; 
 }
 
 async function getvalueofkey(key){
     const index = hash(key);
-    let listHead = table[index];
+    let listHead = cache[index];
     if(listHead !=null){
         return listHead.get(key);
 
@@ -104,9 +109,10 @@ async function getvalueofkey(key){
 async function deletekeyvaluepair(key){
     const index = hash(key);
     let previousNode = null;
-    let listHead = table[index];
+    let listHead = cache[index];
     if(listHead!=null){
         if(listHead.get(key)!=null){
+        cache[index]=listHead.remove(key);
         table[index]=listHead.remove(key);
         return true;
         }

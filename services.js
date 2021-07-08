@@ -5,6 +5,7 @@ var table = [];
 var cache = [];
 var mapcapacity = 16;
 var size = 0;
+var rehashCount = 0;
 
 function showTable() {
   return cache;
@@ -20,6 +21,7 @@ function hash(key) {
 }
 
 function rehash() {
+    rehashCount++;
     mapcapacity = 2 * mapcapacity;
     let temp = table;
     table = [];
@@ -30,18 +32,29 @@ function rehash() {
       for (let i = 0; i < keys.length; i++) {
         insertion(keys[i], values[i]);
       }
-
       // while(node!=null){
       //     insertion(node.key,node.value);
       //     node=node.next;
       // }
     });
     cache = table;
+    rehashCount--;
 }
 
-function insertion(key, value) {
+function sleep(s) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, s);
+  });
+}   
+
+async function insertion(key, value) {
     if (size == mapcapacity * 8) {
-        rehash();
+        if(rehashCount==0) {
+            rehash();
+        } else{
+            // delay the request
+            await sleep(5000);
+        }
     }
   let index = hash(key);
   // var newnode = new Entry(key,value,null);
@@ -92,7 +105,7 @@ function insertion(key, value) {
 function getvalueofkey(key) {
   const index = hash(key);
   let listHead = cache[index];
-  if (listHead != null) {
+  if (listHead) {
     return listHead.get(key);
 
     // while(listHead!=null){
